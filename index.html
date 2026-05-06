@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Library — Your Curated Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============ THEME TOKENS ============ */
+  :root {
+    --bg: #f5f1e8;
+    --bg-elevated: #fbf8f1;
+    --bg-card: #ffffff;
+    --bg-overlay: rgba(245, 241, 232, 0.85);
+    --ink: #1a1a1f;
+    --ink-soft: #4a4a52;
+    --ink-muted: #8a8a92;
+    --line: #e6e0d2;
+    --line-soft: #efeadc;
+    --accent: #d2461a;
+    --accent-soft: #f4dccc;
+    --accent-ink: #ffffff;
+    --paper-grain: 0.025;
+    --shadow-card: 0 1px 2px rgba(20, 20, 25, 0.04), 0 8px 24px -12px rgba(20, 20, 25, 0.08);
+    --shadow-card-hover: 0 2px 4px rgba(20, 20, 25, 0.06), 0 16px 40px -16px rgba(20, 20, 25, 0.16);
+    --shadow-modal: 0 20px 60px -10px rgba(20, 20, 25, 0.25);
+  }
+
+  [data-theme="dark"] {
+    --bg: #15151a;
+    --bg-elevated: #1c1c22;
+    --bg-card: #1f1f26;
+    --bg-overlay: rgba(21, 21, 26, 0.85);
+    --ink: #f0ebde;
+    --ink-soft: #b8b3a6;
+    --ink-muted: #6a6a72;
+    --line: #2a2a32;
+    --line-soft: #232329;
+    --accent: #ff6f3c;
+    --accent-soft: #3a2418;
+    --accent-ink: #15151a;
+    --paper-grain: 0.04;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+    --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+    --shadow-modal: 0 20px 60px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ============ BASE ============ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background 0.4s ease, color 0.4s ease;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Paper grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: var(--paper-grain);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ============ TYPOGRAPHY ============ */
+  .serif { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; }
+  .mono { font-family: 'Geist Mono', 'JetBrains Mono', monospace; }
+
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+
+  /* ============ HEADER ============ */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: var(--bg-overlay);
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .brand-mark {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .brand-mark .amp { color: var(--accent); font-style: normal; font-weight: 400; }
+  .brand-meta {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ink-muted);
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ============ BUTTONS ============ */
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--bg);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px -8px var(--ink); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { background: var(--bg-elevated); border-color: var(--ink-soft); }
+
+  .btn-icon {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--line);
+  }
+  .btn-icon:hover { background: var(--bg-elevated); border-color: var(--ink-soft); }
+  .btn-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+
+  .theme-toggle .sun { display: none; }
+  .theme-toggle .moon { display: block; }
+  [data-theme="dark"] .theme-toggle .sun { display: block; }
+  [data-theme="dark"] .theme-toggle .moon { display: none; }
+
+  /* ============ MAIN ============ */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 56px 32px 96px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero {
+    margin-bottom: 48px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 32px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 32px;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    margin: 0 0 12px;
+    color: var(--ink);
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+  .hero p {
+    color: var(--ink-soft);
+    margin: 0;
+    max-width: 540px;
+    font-size: 15px;
+  }
+  .hero-stats {
+    text-align: right;
+    font-family: 'Fraunces', serif;
+    color: var(--ink-soft);
+  }
+  .hero-stats .num {
+    font-size: 56px;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--ink);
+    font-feature-settings: "tnum";
+  }
+  .hero-stats .label {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 10px;
+    font-family: 'Geist', sans-serif;
+    color: var(--ink-muted);
+    margin-top: 6px;
+  }
+
+  /* ============ TOOLBAR ============ */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .search {
+    flex: 1;
+    min-width: 240px;
+    position: relative;
+  }
+  .search svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    stroke: var(--ink-muted);
+    fill: none;
+    stroke-width: 1.6;
+  }
+  .search input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    border: 1px solid var(--line);
+    background: var(--bg-elevated);
+    color: var(--ink);
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .search input:focus {
+    outline: none;
+    border-color: var(--ink-soft);
+    background: var(--bg-card);
+  }
+  .search input::placeholder { color: var(--ink-muted); }
+
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    border: 1px solid var(--line);
+    background: var(--bg-elevated);
+    color: var(--ink-soft);
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .filter-chip:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .filter-chip.active {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .filter-chip .llm-icon { width: 14px; height: 14px; }
+
+  /* ============ GRID ============ */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 22px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    animation: cardIn 0.5s cubic-bezier(0.2, 0, 0.2, 1) backwards;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--ink-soft);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-thumb {
+    aspect-ratio: 16 / 10;
+    background: var(--bg-elevated);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card-thumb-gradient {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    line-height: 1;
+  }
+  .card-thumb-gradient::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background-image: 
+      radial-gradient(circle at 20% 30%, var(--g1), transparent 50%),
+      radial-gradient(circle at 80% 70%, var(--g2), transparent 50%),
+      radial-gradient(circle at 50% 50%, var(--g3), transparent 60%);
+    filter: blur(20px);
+  }
+  .card-thumb-gradient span {
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+  }
+  .card-menu-trigger {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    color: #1a1a1f;
+  }
+  .card:hover .card-menu-trigger { opacity: 1; }
+  .card-menu-trigger:hover { background: rgba(255,255,255,1); }
+  .card-menu-trigger svg { width: 14px; height: 14px; }
+
+  .card-body {
+    padding: 18px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 12px;
+  }
+  .card-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 19px;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    color: var(--ink);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-preview {
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    background: var(--bg-elevated);
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line-soft);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .card-preview:hover { background: var(--bg); }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px 18px;
+    gap: 12px;
+  }
+  .llm-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .llm-icon-wrap {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    background: var(--bg-card);
+    transition: transform 0.2s;
+  }
+  .llm-icon-wrap:hover { transform: scale(1.1); z-index: 2; }
+  .llm-icon-wrap[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .llm-icon-wrap { position: relative; }
+  .llm-icon { width: 16px; height: 16px; }
+
+  .copy-btn {
+    border: none;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .copy-btn:hover { transform: translateY(-1px); }
+  .copy-btn.copied {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .copy-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+  /* ============ EMPTY STATE ============ */
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 40px;
+    border: 1.5px dashed var(--line);
+    border-radius: 24px;
+    background: var(--bg-elevated);
+  }
+  .empty-mark {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 88px;
+    line-height: 1;
+    color: var(--accent);
+    margin-bottom: 20px;
+    font-weight: 300;
+  }
+  .empty h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 28px;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+  }
+  .empty p {
+    color: var(--ink-soft);
+    margin: 0 0 24px;
+  }
+
+  /* ============ MODAL ============ */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 25, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 5vh 20px;
+    overflow-y: auto;
+    animation: fadeIn 0.25s ease;
+  }
+  .modal-backdrop.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--bg-card);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 580px;
+    box-shadow: var(--shadow-modal);
+    border: 1px solid var(--line);
+    overflow: hidden;
+    animation: modalIn 0.35s cubic-bezier(0.2, 0, 0.2, 1);
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .modal-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .modal-header h2 em { font-style: italic; color: var(--accent); }
+
+  .modal-body {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+  .field input[type="text"],
+  .field input[type="url"],
+  .field textarea {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s;
+    resize: vertical;
+  }
+  .field textarea {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px;
+    min-height: 140px;
+    line-height: 1.55;
+  }
+  .field input:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--ink-soft);
+    background: var(--bg-card);
+  }
+  .field-hint {
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+
+  .emoji-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .emoji-pick {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--bg-elevated);
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.15s;
+  }
+  .emoji-pick:hover { border-color: var(--ink-soft); transform: scale(1.05); }
+  .emoji-pick.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .llm-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .llm-toggle {
+    border: 1px solid var(--line);
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .llm-toggle:hover { border-color: var(--ink-soft); }
+  .llm-toggle.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+  .llm-toggle .llm-icon { width: 18px; height: 18px; }
+
+  .modal-footer {
+    padding: 18px 28px 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .modal-footer .left, .modal-footer .right {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-danger-ghost {
+    background: transparent;
+    color: #c8434a;
+    border: 1px solid var(--line);
+  }
+  .btn-danger-ghost:hover { background: rgba(200, 67, 74, 0.08); border-color: #c8434a; }
+  [data-theme="dark"] .btn-danger-ghost { color: #ff7a82; }
+
+  /* ============ IMAGE SOURCE TABS ============ */
+  .source-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-elevated);
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    margin-bottom: 4px;
+    width: fit-content;
+  }
+  .source-tab {
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.18s ease;
+  }
+  .source-tab svg {
+    width: 13px; height: 13px;
+    stroke: currentColor; fill: none; stroke-width: 1.8;
+  }
+  .source-tab.active {
+    background: var(--bg-card);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .source-tab:not(.active):hover { color: var(--ink); }
+
+  .source-panel { display: none; flex-direction: column; gap: 10px; }
+  .source-panel.active { display: flex; }
+
+  /* File drop zone */
+  .drop-zone {
+    border: 1.5px dashed var(--line);
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    padding: 22px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .drop-zone svg {
+    width: 26px; height: 26px;
+    stroke: var(--ink-muted);
+    fill: none; stroke-width: 1.4;
+    margin-bottom: 8px;
+  }
+  .drop-zone-title {
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .drop-zone-hint {
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+  .drop-zone input[type="file"] { display: none; }
+
+  /* Image preview in form */
+  .img-preview {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-elevated);
+    max-height: 200px;
+    display: none;
+  }
+  .img-preview.show { display: block; }
+  .img-preview img {
+    width: 100%;
+    height: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+  .img-preview-clear {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(20,20,25,0.75);
+    color: #fff;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    transition: background 0.15s;
+  }
+  .img-preview-clear:hover { background: rgba(20,20,25,0.95); }
+  .img-preview-clear svg {
+    width: 14px; height: 14px;
+    stroke: currentColor; fill: none; stroke-width: 2;
+  }
+
+  /* ============ VIEW MODAL ============ */
+  .view-modal { max-width: 720px; }
+  .view-hero {
+    margin: -24px -28px 20px;
+    aspect-ratio: 16 / 7;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .view-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .view-hero .card-thumb-gradient { font-size: 96px; }
+  .view-content {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    background: var(--bg-elevated);
+    padding: 20px 22px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--ink);
+    max-height: 420px;
+    overflow-y: auto;
+  }
+  @media (max-width: 700px) {
+    .view-hero { margin: -24px -20px 20px; aspect-ratio: 16 / 9; }
+  }
+
+  /* ============ TOAST ============ */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+    z-index: 200;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast svg { width: 14px; height: 14px; stroke: var(--accent); fill: none; stroke-width: 2.5; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 700px) {
+    .header-inner { padding: 14px 18px; }
+    main { padding: 32px 18px 80px; }
+    .hero { grid-template-columns: 1fr; gap: 24px; padding-bottom: 24px; }
+    .hero-stats { text-align: left; }
+    .hero-stats .num { font-size: 44px; }
+    .grid { grid-template-columns: 1fr; gap: 16px; }
+    .modal-header, .modal-body, .modal-footer { padding-left: 20px; padding-right: 20px; }
+    .llm-grid { grid-template-columns: repeat(2, 1fr); }
+    .modal-footer { flex-direction: column; }
+    .modal-footer .left, .modal-footer .right { width: 100%; }
+    .modal-footer .right { flex-direction: row-reverse; }
+    .modal-footer .btn { flex: 1; justify-content: center; }
+    .brand-meta { display: none; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="#" class="brand">
+      <span class="brand-mark">Prompt<em class="amp">·</em>Library</span>
+      <span class="brand-meta">your collection</span>
+    </a>
+    <div class="header-actions">
+      <button class="btn-icon" id="exportBtn" aria-label="Export prompts" title="Export as JSON">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+      <button class="btn-icon" id="importBtn" aria-label="Import prompts" title="Import from JSON">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </button>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+      <button class="btn-icon theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg class="moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </button>
+      <button class="btn btn-primary" id="newPromptBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New prompt
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <h1>A library of your <em>finest</em><br>prompts.</h1>
+      <p>Curate, organize, and copy your best prompts in one place. Tag each with the models that bring out the best in it.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="num" id="statCount">0</div>
+      <div class="label">Prompts saved</div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search prompts by title or content…">
+    </div>
+    <div class="filter-row" id="filterRow"></div>
+  </div>
+
+  <div class="grid" id="promptGrid"></div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-backdrop" id="formBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2 id="formTitle">New <em>prompt</em></h2>
+      <button class="btn-icon" id="closeForm" aria-label="Close">
+        <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label for="fTitle">Title</label>
+        <input type="text" id="fTitle" placeholder="e.g. Visual prompt for product mockups" maxlength="120">
+      </div>
+
+      <div class="field">
+        <label>Thumbnail image <span style="text-transform:none;letter-spacing:0;color:var(--ink-muted)">— optional</span></label>
+        <div class="source-tabs" id="sourceTabs">
+          <button type="button" class="source-tab active" data-src="url">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Paste URL
+          </button>
+          <button type="button" class="source-tab" data-src="file">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload from device
+          </button>
+        </div>
+
+        <div class="source-panel active" data-panel="url">
+          <input type="url" id="fThumb" placeholder="https://… (paste any image link)">
+        </div>
+
+        <div class="source-panel" data-panel="file">
+          <label class="drop-zone" id="dropZone" for="fFile">
+            <div>
+              <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="drop-zone-title">Click to choose, or drop an image</div>
+            <div class="drop-zone-hint">PNG, JPG, WebP, GIF — auto-resized to fit</div>
+            <input type="file" id="fFile" accept="image/*">
+          </label>
+        </div>
+
+        <div class="img-preview" id="imgPreview">
+          <img id="imgPreviewImg" alt="Preview">
+          <button type="button" class="img-preview-clear" id="imgPreviewClear" aria-label="Remove image">
+            <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Thumbnail emoji</label>
+        <div class="emoji-row" id="emojiRow"></div>
+        <div class="field-hint">Used as a fallback if no image is set, or shown over a generated gradient.</div>
+      </div>
+
+      <div class="field">
+        <label for="fContent">Prompt</label>
+        <textarea id="fContent" placeholder="Paste or write your prompt here…"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Recommended models</label>
+        <div class="llm-grid" id="llmGrid"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="left">
+        <button class="btn btn-danger-ghost" id="deleteBtn" style="display:none">Delete</button>
+      </div>
+      <div class="right">
+        <button class="btn btn-ghost" id="cancelForm">Cancel</button>
+        <button class="btn btn-primary" id="saveForm">Save prompt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-backdrop" id="viewBackdrop">
+  <div class="modal view-modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h2 id="viewTitle">—</h2>
+      <button class="btn-icon" id="closeView" aria-label="Close">
+        <svg viewBox="0 0 24 24" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="view-hero" id="viewHero"></div>
+      <div class="llm-row" id="viewLlms" style="margin-bottom:6px"></div>
+      <div class="view-content" id="viewContent"></div>
+    </div>
+    <div class="modal-footer">
+      <div class="left">
+        <button class="btn btn-ghost" id="editFromView">Edit</button>
+      </div>
+      <div class="right">
+        <button class="btn btn-primary" id="copyFromView">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy prompt
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastMsg">Copied to clipboard</span>
+</div>
+
+<script>
+/* ============================================
+   LLM ICONS — simple, recognizable SVG marks
+   ============================================ */
+const LLMS = {
+  chatgpt: {
+    name: 'ChatGPT',
+    color: '#10a37f',
+    icon: `<svg class="llm-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6 6 0 0 0 4.96 4a5.98 5.98 0 0 0-3.99 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .52 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 12.51 24a6.05 6.05 0 0 0 5.77-4.21 5.98 5.98 0 0 0 3.99-2.9 6.05 6.05 0 0 0-.74-7.07h-.25z" fill="#10a37f"/>
+    </svg>`
+  },
+  claude: {
+    name: 'Claude',
+    color: '#cc785c',
+    icon: `<svg class="llm-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5.4 18.5h-.8L9 5.5h1.6l4.4 13h-.8l-1.3-3.8H6.7l-1.3 3.8zm1.6-4.7h5.4l-2.7-7.8-2.7 7.8z" fill="#cc785c"/>
+      <path d="M14.4 18.5L18.8 5.5h.8L24 18.5h-.8l-1.3-3.8h-6.2l-1.3 3.8h-.8zm2.4-4.7h5.4l-2.7-7.8-2.7 7.8z" fill="#cc785c"/>
+    </svg>`
+  },
+  gemini: {
+    name: 'Gemini',
+    color: '#4285f4',
+    icon: `<svg class="llm-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4285f4"/>
+          <stop offset="50%" stop-color="#9b72ff"/>
+          <stop offset="100%" stop-color="#ff5757"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 2 L13.5 9.5 L21 11 L13.5 12.5 L12 21 L10.5 12.5 L3 11 L10.5 9.5 Z" fill="url(#gemGrad)"/>
+    </svg>`
+  },
+  deepseek: {
+    name: 'DeepSeek',
+    color: '#4d6bfe',
+    icon: `<svg class="llm-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 8c-1 0-2 .5-2.5 1.3-1.5-2-4-3.3-6.8-3.3-2.4 0-4.6 1-6.1 2.5C4 9 3 10.5 3 12.3c0 3.7 3.6 6.7 8 6.7 1.6 0 3.2-.4 4.4-1.2.8.7 1.9 1.2 3.1 1.2 2 0 3.5-1.5 3.5-3.5 0-1.3-.7-2.4-1.7-3 .9-.7 1.7-1.7 1.7-2.8 0-1-.5-1.7-1-1.7zm-9 9c-3.3 0-6-2-6-4.5S8.7 8 12 8s6 2 6 4.5S15.3 17 12 17zm0-7a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 0-5z" fill="#4d6bfe"/>
+    </svg>`
+  },
+  qwen: {
+    name: 'Qwen',
+    color: '#615ced',
+    icon: `<svg class="llm-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L2 8v8l10 6 10-6V8L12 2zm0 2.3L19.5 9 12 13.5 4.5 9 12 4.3zM4 10.5l7 4.2v6.5l-7-4.2v-6.5zm9 10.7v-6.5l7-4.2v6.5l-7 4.2z" fill="#615ced"/>
+    </svg>`
+  },
+  grok: {
+    name: 'Grok',
+    color: '#000000',
+    icon: `<svg class="llm-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 3l8.5 11L3 21h3l7-9 7 9h3l-8.5-11L21 3h-3l-6 8-6-8H3z" fill="currentColor"/>
+    </svg>`
+  }
+};
+
+/* Gradient palettes for auto-thumbnails */
+const GRADIENTS = [
+  ['#ffd6a5', '#ffadad', '#fdffb6'],
+  ['#caffbf', '#9bf6ff', '#a0c4ff'],
+  ['#ffc6ff', '#bdb2ff', '#a0c4ff'],
+  ['#fdffb6', '#caffbf', '#9bf6ff'],
+  ['#ffadad', '#ffc6ff', '#bdb2ff'],
+  ['#a0c4ff', '#caffbf', '#fdffb6'],
+  ['#f6dfeb', '#e8c1c5', '#c9a9a6'],
+  ['#fbceb1', '#f4a698', '#dd6e6e'],
+  ['#cdb4db', '#ffc8dd', '#ffafcc'],
+  ['#b8e0d2', '#d6eadf', '#eac4d5']
+];
+
+const EMOJI_OPTIONS = ['✦','✧','◆','✺','❋','❀','✿','◉','▲','■','●','◐','✱','❖','◈','✪','♟','✾'];
+
+const STORAGE_KEY = 'prompt-library-v1';
+
+/* ============================================
+   STATE
+   ============================================ */
+let state = {
+  prompts: [],
+  filter: 'all',
+  search: '',
+  editingId: null,
+  formEmoji: '✦',
+  formLlms: new Set(),
+  formThumb: null
+};
+
+/* ============================================
+   STORAGE
+   ============================================ */
+async function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      state.prompts = Array.isArray(data.prompts) ? data.prompts : [];
+    }
+  } catch (e) {
+    state.prompts = [];
+  }
+  // Theme
+  try {
+    const t = localStorage.getItem('prompt-library-theme');
+    if (t) {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  } catch (e) {}
+}
+
+async function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ prompts: state.prompts }));
+  } catch (e) {
+    console.error('Save failed', e);
+    if (e && (e.name === 'QuotaExceededError' || e.code === 22)) {
+      showToast('Storage full — try removing large images');
+    } else {
+      showToast('Failed to save — try again');
+    }
+  }
+}
+
+async function saveTheme(theme) {
+  try { localStorage.setItem('prompt-library-theme', theme); } catch (e) {}
+}
+
+/* ============================================
+   HELPERS
+   ============================================ */
+function uid() {
+  return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function gradientFor(id) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return GRADIENTS[h % GRADIENTS.length];
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), 1900);
+}
+
+/* ============================================
+   RENDER
+   ============================================ */
+function render() {
+  const grid = document.getElementById('promptGrid');
+  const stat = document.getElementById('statCount');
+  stat.textContent = String(state.prompts.length).padStart(2, '0');
+
+  const filtered = state.prompts.filter(p => {
+    if (state.filter !== 'all' && (!p.llms || !p.llms.includes(state.filter))) return false;
+    if (state.search) {
+      const q = state.search.toLowerCase();
+      return (p.title || '').toLowerCase().includes(q) || (p.content || '').toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  if (state.prompts.length === 0) {
+    grid.innerHTML = `
+      <div class="empty">
+        <div class="empty-mark">∅</div>
+        <h3>Your library is empty</h3>
+        <p>Save your first prompt to start building your collection.</p>
+        <button class="btn btn-primary" onclick="openForm()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add your first prompt
+        </button>
+      </div>`;
+    return;
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty">
+        <div class="empty-mark">⌕</div>
+        <h3>No matches</h3>
+        <p>Try a different search or clear your filters.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((p, i) => renderCard(p, i)).join('');
+
+  // Wire up card events
+  grid.querySelectorAll('.card').forEach(card => {
+    const id = card.dataset.id;
+    card.querySelector('.copy-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      copyPrompt(id);
+    });
+    card.querySelector('.card-menu-trigger').addEventListener('click', e => {
+      e.stopPropagation();
+      openForm(id);
+    });
+    card.querySelector('.card-preview').addEventListener('click', () => openView(id));
+    card.querySelector('.card-title').addEventListener('click', () => openView(id));
+    card.querySelector('.card-thumb').addEventListener('click', () => openView(id));
+  });
+}
+
+function renderCard(p, i) {
+  const grad = gradientFor(p.id);
+  const thumb = p.thumbnail
+    ? `<img src="${escapeHtml(p.thumbnail)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+       <div class="card-thumb-gradient" style="display:none;--g1:${grad[0]};--g2:${grad[1]};--g3:${grad[2]}"><span>${escapeHtml(p.emoji || '✦')}</span></div>`
+    : `<div class="card-thumb-gradient" style="--g1:${grad[0]};--g2:${grad[1]};--g3:${grad[2]}"><span>${escapeHtml(p.emoji || '✦')}</span></div>`;
+
+  const llms = (p.llms || []).map(k => LLMS[k] ? `
+    <span class="llm-icon-wrap" title="${LLMS[k].name}">${LLMS[k].icon}</span>
+  ` : '').join('');
+
+  return `
+    <article class="card" data-id="${p.id}" style="animation-delay:${Math.min(i, 8) * 40}ms">
+      <div class="card-thumb">
+        ${thumb}
+        <button class="card-menu-trigger" aria-label="Edit prompt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">${escapeHtml(p.title || 'Untitled')}</h3>
+        <div class="card-preview">${escapeHtml(p.content || '')}</div>
+      </div>
+      <div class="card-footer">
+        <div class="llm-row">${llms || '<span style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.12em">Any model</span>'}</div>
+        <button class="copy-btn" aria-label="Copy prompt">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy</span>
+        </button>
+      </div>
+    </article>`;
+}
+
+function renderFilters() {
+  const row = document.getElementById('filterRow');
+  const counts = { all: state.prompts.length };
+  Object.keys(LLMS).forEach(k => counts[k] = 0);
+  state.prompts.forEach(p => (p.llms || []).forEach(k => { if (counts[k] !== undefined) counts[k]++; }));
+
+  const keys = ['all', ...Object.keys(LLMS).filter(k => counts[k] > 0)];
+  row.innerHTML = keys.map(k => {
+    const isAll = k === 'all';
+    const label = isAll ? 'All' : LLMS[k].name;
+    const icon = isAll ? '' : LLMS[k].icon;
+    return `<button class="filter-chip ${state.filter === k ? 'active' : ''}" data-key="${k}">${icon}<span>${label}</span><span style="opacity:0.5">${counts[k]}</span></button>`;
+  }).join('');
+  row.querySelectorAll('.filter-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      state.filter = b.dataset.key;
+      renderFilters();
+      render();
+    });
+  });
+}
+
+/* ============================================
+   COPY
+   ============================================ */
+async function copyPrompt(id) {
+  const p = state.prompts.find(x => x.id === id);
+  if (!p) return;
+  try {
+    await navigator.clipboard.writeText(p.content || '');
+    // mark button
+    const btn = document.querySelector(`.card[data-id="${id}"] .copy-btn`);
+    if (btn) {
+      btn.classList.add('copied');
+      const span = btn.querySelector('span');
+      const orig = span.textContent;
+      span.textContent = 'Copied';
+      setTimeout(() => { btn.classList.remove('copied'); span.textContent = orig; }, 1400);
+    }
+    showToast('Copied to clipboard');
+  } catch (e) {
+    showToast('Could not copy — try selecting manually');
+  }
+}
+
+/* ============================================
+   FORM (Add/Edit)
+   ============================================ */
+function buildEmojiPicker() {
+  const row = document.getElementById('emojiRow');
+  row.innerHTML = EMOJI_OPTIONS.map(e => `<button type="button" class="emoji-pick ${e === state.formEmoji ? 'selected' : ''}" data-e="${e}">${e}</button>`).join('');
+  row.querySelectorAll('.emoji-pick').forEach(b => {
+    b.addEventListener('click', () => {
+      state.formEmoji = b.dataset.e;
+      row.querySelectorAll('.emoji-pick').forEach(x => x.classList.toggle('selected', x.dataset.e === state.formEmoji));
+    });
+  });
+}
+
+function buildLlmGrid() {
+  const grid = document.getElementById('llmGrid');
+  grid.innerHTML = Object.entries(LLMS).map(([k, v]) => `
+    <button type="button" class="llm-toggle ${state.formLlms.has(k) ? 'selected' : ''}" data-key="${k}">
+      ${v.icon}<span>${v.name}</span>
+    </button>
+  `).join('');
+  grid.querySelectorAll('.llm-toggle').forEach(b => {
+    b.addEventListener('click', () => {
+      const k = b.dataset.key;
+      if (state.formLlms.has(k)) state.formLlms.delete(k);
+      else state.formLlms.add(k);
+      b.classList.toggle('selected');
+    });
+  });
+}
+
+function setSourceTab(src) {
+  document.querySelectorAll('.source-tab').forEach(t => t.classList.toggle('active', t.dataset.src === src));
+  document.querySelectorAll('.source-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === src));
+}
+
+function updateImagePreview() {
+  const wrap = document.getElementById('imgPreview');
+  const img = document.getElementById('imgPreviewImg');
+  const activeSrc = document.querySelector('.source-tab.active')?.dataset.src || 'url';
+  let src = '';
+  if (activeSrc === 'url') {
+    src = document.getElementById('fThumb').value.trim();
+  } else {
+    src = state.formThumb || '';
+  }
+  if (src) {
+    img.src = src;
+    wrap.classList.add('show');
+  } else {
+    wrap.classList.remove('show');
+    img.removeAttribute('src');
+  }
+}
+
+// Resize an image file to a max dimension and return a compressed data URL.
+// This keeps stored thumbnails small (most photos -> ~50-200KB).
+function fileToDataUrl(file, maxDim = 1200, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      reject(new Error('Not an image file'));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error);
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Could not decode image'));
+      img.onload = () => {
+        // GIFs lose animation when canvas-resampled, so keep them as-is.
+        if (file.type === 'image/gif') {
+          resolve(reader.result);
+          return;
+        }
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          const scale = Math.min(maxDim / width, maxDim / height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        // Use JPEG for opaque, PNG for transparency-likely (small files prefer PNG)
+        const useJpeg = file.type !== 'image/png' && file.type !== 'image/webp';
+        const mime = useJpeg ? 'image/jpeg' : (file.type === 'image/webp' ? 'image/webp' : 'image/png');
+        try {
+          resolve(canvas.toDataURL(mime, quality));
+        } catch (e) { reject(e); }
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('That file isn\'t an image');
+    return;
+  }
+  // Hard ceiling on input file size before we even try (20MB)
+  if (file.size > 20 * 1024 * 1024) {
+    showToast('Image is too large (max 20MB)');
+    return;
+  }
+  try {
+    const dataUrl = await fileToDataUrl(file);
+    // After compression, double-check we're under storage's 5MB key cap
+    if (dataUrl.length > 4.8 * 1024 * 1024) {
+      // Try a more aggressive resize
+      const smaller = await fileToDataUrl(file, 800, 0.7);
+      if (smaller.length > 4.8 * 1024 * 1024) {
+        showToast('Image too large to store, even compressed');
+        return;
+      }
+      state.formThumb = smaller;
+    } else {
+      state.formThumb = dataUrl;
+    }
+    updateImagePreview();
+  } catch (e) {
+    showToast('Could not read that image');
+    console.error(e);
+  }
+}
+
+function openForm(id) {
+  state.editingId = id || null;
+  const isEdit = !!id;
+  const p = isEdit ? state.prompts.find(x => x.id === id) : null;
+
+  document.getElementById('formTitle').innerHTML = isEdit ? 'Edit <em>prompt</em>' : 'New <em>prompt</em>';
+  document.getElementById('fTitle').value = p?.title || '';
+  document.getElementById('fContent').value = p?.content || '';
+  state.formEmoji = p?.emoji || '✦';
+  state.formLlms = new Set(p?.llms || []);
+  state.formThumb = p?.thumbnail || null;
+  document.getElementById('deleteBtn').style.display = isEdit ? 'inline-flex' : 'none';
+
+  // Reset image inputs
+  document.getElementById('fThumb').value = '';
+  document.getElementById('fFile').value = '';
+  // Default tab — if existing thumbnail looks like a data URL, preselect upload tab; else URL tab
+  const thumb = state.formThumb;
+  if (thumb && thumb.startsWith('data:')) {
+    setSourceTab('file');
+  } else {
+    setSourceTab('url');
+    if (thumb) document.getElementById('fThumb').value = thumb;
+  }
+  updateImagePreview();
+
+  buildEmojiPicker();
+  buildLlmGrid();
+
+  document.getElementById('formBackdrop').classList.add('open');
+  setTimeout(() => document.getElementById('fTitle').focus(), 50);
+}
+window.openForm = openForm;
+
+function closeForm() {
+  document.getElementById('formBackdrop').classList.remove('open');
+  state.editingId = null;
+}
+
+async function submitForm() {
+  const title = document.getElementById('fTitle').value.trim();
+  const content = document.getElementById('fContent').value.trim();
+  // Resolve thumbnail: if URL tab is active, use the input's value; otherwise use the uploaded data URL in state
+  const activeSrc = document.querySelector('.source-tab.active')?.dataset.src || 'url';
+  let thumbnail = null;
+  if (activeSrc === 'url') {
+    const v = document.getElementById('fThumb').value.trim();
+    thumbnail = v || null;
+  } else {
+    thumbnail = state.formThumb || null;
+  }
+
+  if (!title) { showToast('Add a title'); document.getElementById('fTitle').focus(); return; }
+  if (!content) { showToast('Add prompt content'); document.getElementById('fContent').focus(); return; }
+
+  const data = {
+    title, content,
+    thumbnail,
+    emoji: state.formEmoji,
+    llms: Array.from(state.formLlms)
+  };
+
+  if (state.editingId) {
+    const idx = state.prompts.findIndex(x => x.id === state.editingId);
+    if (idx >= 0) state.prompts[idx] = { ...state.prompts[idx], ...data, updatedAt: Date.now() };
+    showToast('Prompt updated');
+  } else {
+    state.prompts.unshift({ id: uid(), ...data, createdAt: Date.now() });
+    showToast('Prompt saved');
+  }
+
+  await saveState();
+  closeForm();
+  renderFilters();
+  render();
+}
+
+async function deletePrompt() {
+  if (!state.editingId) return;
+  if (!confirm('Delete this prompt? This can\'t be undone.')) return;
+  state.prompts = state.prompts.filter(x => x.id !== state.editingId);
+  await saveState();
+  closeForm();
+  renderFilters();
+  render();
+  showToast('Prompt deleted');
+}
+
+/* ============================================
+   VIEW MODAL
+   ============================================ */
+let currentViewId = null;
+function openView(id) {
+  const p = state.prompts.find(x => x.id === id);
+  if (!p) return;
+  currentViewId = id;
+  document.getElementById('viewTitle').textContent = p.title || 'Untitled';
+  document.getElementById('viewContent').textContent = p.content || '';
+
+  // Hero image — show actual image if set, else a gradient with the emoji
+  const hero = document.getElementById('viewHero');
+  const grad = gradientFor(p.id);
+  if (p.thumbnail) {
+    hero.innerHTML = `
+      <img src="${escapeHtml(p.thumbnail)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="card-thumb-gradient" style="display:none;--g1:${grad[0]};--g2:${grad[1]};--g3:${grad[2]}"><span>${escapeHtml(p.emoji || '✦')}</span></div>
+    `;
+  } else {
+    hero.innerHTML = `
+      <div class="card-thumb-gradient" style="--g1:${grad[0]};--g2:${grad[1]};--g3:${grad[2]}"><span>${escapeHtml(p.emoji || '✦')}</span></div>
+    `;
+  }
+
+  const llmRow = document.getElementById('viewLlms');
+  llmRow.innerHTML = (p.llms || []).map(k => LLMS[k] ? `<span class="llm-icon-wrap" title="${LLMS[k].name}">${LLMS[k].icon}</span>` : '').join('');
+  document.getElementById('viewBackdrop').classList.add('open');
+}
+
+function closeView() {
+  document.getElementById('viewBackdrop').classList.remove('open');
+  currentViewId = null;
+}
+
+/* ============================================
+   THEME
+   ============================================ */
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = cur === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  saveTheme(next);
+}
+
+/* ============================================
+   EVENTS
+   ============================================ */
+document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+document.getElementById('newPromptBtn').addEventListener('click', () => openForm());
+document.getElementById('closeForm').addEventListener('click', closeForm);
+document.getElementById('cancelForm').addEventListener('click', closeForm);
+document.getElementById('saveForm').addEventListener('click', submitForm);
+document.getElementById('deleteBtn').addEventListener('click', deletePrompt);
+document.getElementById('formBackdrop').addEventListener('click', e => { if (e.target.id === 'formBackdrop') closeForm(); });
+
+// Image source tabs
+document.querySelectorAll('.source-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    setSourceTab(tab.dataset.src);
+    updateImagePreview();
+  });
+});
+
+// Live preview as user types/pastes a URL
+document.getElementById('fThumb').addEventListener('input', updateImagePreview);
+
+// File input
+document.getElementById('fFile').addEventListener('change', e => {
+  const file = e.target.files && e.target.files[0];
+  if (file) handleFile(file);
+});
+
+// Drag and drop on the drop zone
+const dropZone = document.getElementById('dropZone');
+['dragenter', 'dragover'].forEach(ev => {
+  dropZone.addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation();
+    dropZone.classList.add('dragover');
+  });
+});
+['dragleave', 'drop'].forEach(ev => {
+  dropZone.addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation();
+    dropZone.classList.remove('dragover');
+  });
+});
+dropZone.addEventListener('drop', e => {
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+
+// Clear preview / uploaded image
+document.getElementById('imgPreviewClear').addEventListener('click', e => {
+  e.preventDefault();
+  e.stopPropagation();
+  state.formThumb = null;
+  document.getElementById('fThumb').value = '';
+  document.getElementById('fFile').value = '';
+  updateImagePreview();
+});
+
+// Export / Import
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (state.prompts.length === 0) { showToast('Nothing to export yet'); return; }
+  const payload = {
+    app: 'prompt-library',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    prompts: state.prompts
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const stamp = new Date().toISOString().slice(0, 10);
+  a.download = `prompt-library-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Exported ' + state.prompts.length + ' prompt' + (state.prompts.length === 1 ? '' : 's'));
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    const incoming = Array.isArray(data) ? data : (Array.isArray(data.prompts) ? data.prompts : null);
+    if (!incoming) { showToast('That file doesn\'t look like a prompt library export'); return; }
+
+    const choice = confirm(
+      `Import ${incoming.length} prompt${incoming.length === 1 ? '' : 's'}?\n\n` +
+      `OK = merge with your current library\nCancel = stop`
+    );
+    if (!choice) return;
+
+    // Merge: skip ids that already exist
+    const existing = new Set(state.prompts.map(p => p.id));
+    let added = 0;
+    incoming.forEach(p => {
+      if (!p || !p.content) return;
+      const item = {
+        id: existing.has(p.id) ? uid() : (p.id || uid()),
+        title: p.title || 'Untitled',
+        content: p.content,
+        thumbnail: p.thumbnail || null,
+        emoji: p.emoji || '✦',
+        llms: Array.isArray(p.llms) ? p.llms : [],
+        createdAt: p.createdAt || Date.now()
+      };
+      state.prompts.unshift(item);
+      added++;
+    });
+    await saveState();
+    renderFilters();
+    render();
+    showToast('Imported ' + added + ' prompt' + (added === 1 ? '' : 's'));
+  } catch (err) {
+    console.error(err);
+    showToast('Could not read that file');
+  } finally {
+    e.target.value = '';
+  }
+});
+
+document.getElementById('closeView').addEventListener('click', closeView);
+document.getElementById('viewBackdrop').addEventListener('click', e => { if (e.target.id === 'viewBackdrop') closeView(); });
+document.getElementById('copyFromView').addEventListener('click', () => {
+  if (currentViewId) copyPrompt(currentViewId);
+});
+document.getElementById('editFromView').addEventListener('click', () => {
+  const id = currentViewId;
+  closeView();
+  setTimeout(() => openForm(id), 150);
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  state.search = e.target.value;
+  render();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('formBackdrop').classList.contains('open')) closeForm();
+    else if (document.getElementById('viewBackdrop').classList.contains('open')) closeView();
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'n' && !document.getElementById('formBackdrop').classList.contains('open')) {
+    e.preventDefault();
+    openForm();
+  }
+});
+
+/* ============================================
+   INIT
+   ============================================ */
+(async function init() {
+  await loadState();
+  // Seed with sample prompts on first run
+  if (state.prompts.length === 0) {
+    state.prompts = [
+      {
+        id: uid(),
+        title: 'Cinematic product photo',
+        content: 'A cinematic, hyperrealistic product photograph of [PRODUCT] on a textured stone surface. Soft directional window light from the upper left, deep shadows, shallow depth of field at f/2.8, 85mm lens. Subtle dust particles floating in the light beam. Editorial composition, muted earthy color grading, 35mm film aesthetic. Ultra-detailed, 4K.',
+        emoji: '◆',
+        thumbnail: null,
+        llms: ['chatgpt', 'gemini'],
+        createdAt: Date.now() - 1000
+      },
+      {
+        id: uid(),
+        title: 'Senior code reviewer',
+        content: 'Act as a senior software engineer with 15 years of experience reviewing code for production systems. I will paste code below. Analyze it across these dimensions:\n\n1. Correctness — bugs, edge cases, race conditions\n2. Security — input validation, injection, auth concerns\n3. Performance — algorithmic complexity, hot paths, allocations\n4. Readability — naming, structure, cognitive load\n5. Testing — coverage gaps, brittle tests\n\nFor each finding, give: severity (critical/high/med/low), location, brief explanation, and a concrete fix. End with a one-paragraph overall assessment. Be direct, not diplomatic.',
+        emoji: '✦',
+        thumbnail: null,
+        llms: ['claude', 'chatgpt', 'deepseek'],
+        createdAt: Date.now() - 2000
+      },
+      {
+        id: uid(),
+        title: 'Distill a long article',
+        content: 'Read the article below and produce a structured digest:\n\n• TL;DR — 2 sentences max, the headline insight\n• Core argument — 3 bullets\n• Evidence cited — list the strongest 3 with source\n• Counter-arguments addressed — bullet list\n• What\'s left unanswered — 2-3 open questions\n• Action items — only if practically relevant\n\nUse plain language. Skip filler. Quote sparingly and only when wording matters.',
+        emoji: '❋',
+        thumbnail: null,
+        llms: ['claude', 'gemini', 'qwen'],
+        createdAt: Date.now() - 3000
+      }
+    ];
+    await saveState();
+  }
+  renderFilters();
+  render();
+})();
+</script>
+</body>
+</html>
